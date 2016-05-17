@@ -1,0 +1,3 @@
+LinearRegressionTest
+
+training Mean Squared Error = 7.451032827699876

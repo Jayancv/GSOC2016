@@ -1,0 +1,9 @@
+K-Mean Clustering
+3--10--1
+
+MapPartitionsRDD[2] at map at KMean.java:54
+Cluster centers:
+ [0.1,0.1,0.1]
+ [9.05,9.05,9.05]
+ [9.2,9.2,9.2]
+Cost: 0.07500000000004324

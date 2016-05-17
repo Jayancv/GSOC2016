@@ -31,6 +31,8 @@ public final class KMean {
     }
 
     public static void main(String[] args) {
+
+        System.out.println("K-Mean Clustering");
         if (args.length < 3) {
             System.err.println(
                     "Usage: JavaKMeans <input_file> <k> <max_iterations> [<runs>]");
@@ -41,6 +43,7 @@ public final class KMean {
         int iterations = Integer.parseInt(args[2]);
         int runs = 1;
 
+        System.out.println(k+"--"+iterations+"--"+runs+"\n");
         if (args.length >= 4) {
             runs = Integer.parseInt(args[3]);
         }
@@ -49,6 +52,7 @@ public final class KMean {
         JavaRDD<String> lines = sc.textFile(inputFile);
 
         JavaRDD<Vector> points = lines.map(new ParsePoint());
+        System.out.println(points);
 
         KMeansModel model = KMeans.train(points.rdd(), k, iterations, runs, KMeans.K_MEANS_PARALLEL());
 

@@ -1,0 +1,4 @@
+LinearRegressionTest
+
+training Mean Squared Error = 7.451032827699876
+org.apache.spark.mllib.regression.LinearRegressionModel: intercept = 0.0, numFeatures = 8
