@@ -1,7 +1,6 @@
 org/sparkexample/WordCount$3.class
 org/sparkexample/StreamingLinearRegression.class
 org/sparkexample/StreamingLinearRegression$2.class
-org/sparkexample/StreamingLinearRegression$6.class
 org/sparkexample/KMean.class
 org/sparkexample/StreamingLinearRegression$1.class
 org/sparkexample/LinearRegression1$3.class

@@ -22,14 +22,18 @@ public class StreamingLinearRegression {
 
          Scanner scn= new Scanner(System.in);
         String path = scn.next();
-        LinearRegressionModel model= trainData(sc, path);
+        JavaRDD<LabeledPoint> parsedData;
+        parsedData = getRDD(sc,path);
+        LinearRegressionModel model= trainData(parsedData);
+
         System.out.println(model.weights());
         System.out.println("\n");
         //Incremental Modelling
         while(scn.hasNext()) {
             path = scn.next();
+            parsedData = getRDD(sc,path);
             prevModel=model;
-            model = trainStreamData(sc, path, prevModel);
+            model = trainStreamData(parsedData,prevModel);
             System.out.println(model.weights());
             System.out.println("\n");
         }
@@ -37,8 +41,7 @@ public class StreamingLinearRegression {
 
     }
 
-    public static LinearRegressionModel trainStreamData (JavaSparkContext sc, String path, LinearRegressionModel prevModel) {
-
+    public static JavaRDD<LabeledPoint> getRDD (JavaSparkContext sc, String path){
         System.out.println("Train-Stream-Data\n");
         JavaRDD<String> data = sc.textFile(path);
         JavaRDD<LabeledPoint> parsedData = data.map(
@@ -55,6 +58,10 @@ public class StreamingLinearRegression {
         );
         parsedData.cache();
 
+        return parsedData;
+    }
+
+    public static LinearRegressionModel trainStreamData (JavaRDD<LabeledPoint> parsedData,LinearRegressionModel prevModel) {
         // Building the model
         int numIterations = 100;
         double stepSize = 0.00000001;
@@ -83,23 +90,7 @@ public class StreamingLinearRegression {
     }
 
 
-    public static LinearRegressionModel trainData (JavaSparkContext sc, String path) {
-
-            System.out.println("Train-Data\n");
-        JavaRDD<String> data = sc.textFile(path);
-        JavaRDD<LabeledPoint> parsedData = data.map(
-                new Function<String, LabeledPoint>() {
-                    public LabeledPoint call(String line) {
-                        String[] parts = line.split(",");
-                        String[] features = parts[1].split(" ");
-                        double[] v = new double[features.length];
-                        for (int i = 0; i < features.length - 1; i++)
-                            v[i] = Double.parseDouble(features[i]);
-                        return new LabeledPoint(Double.parseDouble(parts[0]), Vectors.dense(v));
-                    }
-                }
-        );
-        parsedData.cache();
+    public static LinearRegressionModel trainData (JavaRDD<LabeledPoint> parsedData) {
 
         // Building the model
         int numIterations = 100;
