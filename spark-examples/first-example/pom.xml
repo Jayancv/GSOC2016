@@ -27,6 +27,18 @@
             <version>1.6.1</version>
         </dependency>
 
+
+        <dependency>
+            <groupId>org.wso2.siddhi</groupId>
+            <artifactId>siddhi-core</artifactId>
+            <version> 3.0.6-SNAPSHOT </version>
+        </dependency>
+        <dependency>
+            <groupId>org.wso2.siddhi</groupId>
+            <artifactId>siddhi-query-api</artifactId>
+            <version> 3.0.6-SNAPSHOT </version>
+        </dependency>
+
     </dependencies>
 
     <build>
