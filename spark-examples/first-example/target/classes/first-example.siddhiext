@@ -1,1 +1,1 @@
-sin=org.wso2.siddhi.extension.math.SinFunctionExtension
+mysin=org.wso2.sparkexample.SinFunctionExtension
