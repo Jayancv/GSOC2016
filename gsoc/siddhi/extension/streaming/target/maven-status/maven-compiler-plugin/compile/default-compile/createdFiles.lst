@@ -1,0 +1,5 @@
+org/gsoc/siddhi/extension/streaming/StreamingLinearRegression.class
+org/gsoc/siddhi/extension/streaming/StreamingLinearRegressionHandler.class
+org/gsoc/siddhi/extension/streaming/MyLinearRegressionStreamProcessor.class
+org/gsoc/siddhi/extension/streaming/App.class
+org/gsoc/siddhi/extension/streaming/StreamingLinearRegressionStreamProcessor.class

@@ -1,0 +1,2 @@
+myregress=org.gsoc.siddhi.extension.streaming.MyLinearRegressionStreamProcessor
+streaminglr=org.gsoc.siddhi.extension.streaming.StreamingLinearRegressionStreamProcessor
