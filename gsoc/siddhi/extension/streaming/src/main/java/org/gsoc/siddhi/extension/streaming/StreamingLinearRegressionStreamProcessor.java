@@ -111,7 +111,7 @@ public class StreamingLinearRegressionStreamProcessor extends StreamProcessor {
                // Object[] outputData= streamingLinearRegression.addToRDD(eventData);
                 Double mse = streamingLinearRegression.regress(eventData);
 
-                System.out.println(outputData);
+                System.out.println("OutputData: "+outputData);
 
 
 

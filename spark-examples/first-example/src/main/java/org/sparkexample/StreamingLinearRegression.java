@@ -44,6 +44,9 @@ public class StreamingLinearRegression {
     public static JavaRDD<LabeledPoint> getRDD (JavaSparkContext sc, String path){
         System.out.println("Train-Stream-Data\n");
         JavaRDD<String> data = sc.textFile(path);
+        sc.
+        Object [] myData = streamingLinearRegression.regress(eventData);
+
         JavaRDD<LabeledPoint> parsedData = data.map(
                 new Function<String, LabeledPoint>() {
                     public LabeledPoint call(String line) {
@@ -96,6 +99,7 @@ public class StreamingLinearRegression {
         int numIterations = 100;
         double stepSize = 0.00000001;
         final LinearRegressionModel model =  LinearRegressionWithSGD.train(JavaRDD.toRDD(parsedData), numIterations, stepSize);
+
                 // LinearRegressionWithSGD.train(JavaRDD.toRDD(parsedData), numIterations, stepSize,1,prevModel.weights())
 
         // Evaluate model on training examples and compute training error
