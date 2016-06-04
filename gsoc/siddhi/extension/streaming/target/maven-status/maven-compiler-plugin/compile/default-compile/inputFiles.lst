@@ -1,6 +1,8 @@
+/home/mahesh/GSOC/GSOC2016/gsoc/siddhi/extension/streaming/src/main/java/org/gsoc/siddhi/extension/streaming/StreamingKMeansClusteringStreamProcessor.java
 /home/mahesh/GSOC/GSOC2016/gsoc/siddhi/extension/streaming/src/main/java/org/gsoc/siddhi/extension/streaming/StreamingSparkAlgorithms.java
+/home/mahesh/GSOC/GSOC2016/gsoc/siddhi/extension/streaming/src/main/java/org/gsoc/siddhi/extension/streaming/StreamingKMeansClustering.java
+/home/mahesh/GSOC/GSOC2016/gsoc/siddhi/extension/streaming/src/main/java/org/gsoc/siddhi/extension/streaming/StreamingLinearRegressionModel.java
 /home/mahesh/GSOC/GSOC2016/gsoc/siddhi/extension/streaming/src/main/java/org/gsoc/siddhi/extension/streaming/StreamingLinearRegressionStreamProcessor.java
 /home/mahesh/GSOC/GSOC2016/gsoc/siddhi/extension/streaming/src/main/java/org/gsoc/siddhi/extension/streaming/MyLinearRegressionStreamProcessor.java
 /home/mahesh/GSOC/GSOC2016/gsoc/siddhi/extension/streaming/src/main/java/org/gsoc/siddhi/extension/streaming/StreamingLinearRegression.java
-/home/mahesh/GSOC/GSOC2016/gsoc/siddhi/extension/streaming/src/main/java/org/gsoc/siddhi/extension/streaming/App.java
 /home/mahesh/GSOC/GSOC2016/gsoc/siddhi/extension/streaming/src/main/java/org/gsoc/siddhi/extension/streaming/StreamingLinearRegressionHandler.java

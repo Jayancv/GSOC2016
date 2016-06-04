@@ -10,52 +10,51 @@ import org.apache.spark.mllib.regression.LinearRegressionModel;
 import org.apache.spark.mllib.regression.LinearRegressionWithSGD;
 import org.apache.spark.SparkConf;
 import java.util.Scanner;
-import java.util.*;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Arrays;
 /**
  * Created by mahesh on 5/28/16.
  */
 public class StreamingLinearRegression {
+    private int learnType;
     private int paramCount = 0;                                         // Number of x variables +1
-    private int calcInterval = 1;                                       // The frequency of regression calculation
     private int batchSize = 10;                                 // Maximum # of events, used for regression calculation
     private double ci = 0.95;                                           // Confidence Interval
-    private int paramPosition = 0;
-
     private int numIterations = 100;
     private double stepSize = 0.00000001;
-    private JavaRDD<String> events=null;
     private List<String> eventsMem=null;
 
-    private int k=0;
-
     private  LinearRegressionModel model;
-    SparkConf conf = null;
-    JavaSparkContext sc = null;
-    LinearRegressionModel prevModel=null;
-    JavaRDD<LabeledPoint> eventsRDD;
+    private SparkConf conf = null;
+    private JavaSparkContext sc = null;
+    private LinearRegressionModel prevModel=null;
+    private JavaRDD<LabeledPoint> eventsRDD;
+    private boolean isBuiltModel;
+    private MODEL_TYPE type;
+    public enum MODEL_TYPE {BATCH_PROCESS, MOVING_WINDOW,TIME_BASED }
 
-
-    public StreamingLinearRegression(int paramCount, int calcInterval, int batchSize, double ci, int numIteration, double stepSize){
+    public StreamingLinearRegression(int learnType,int paramCount, int batchSize, double ci, int numIteration, double stepSize){
 
         System.out.println("StreamingLinearRegression");
+            //this.type = learnType;
+            this.learnType = learnType;
             this.paramCount =paramCount;
-            this.calcInterval = calcInterval;
             this.batchSize = batchSize;
             this.ci = ci;
             this.numIterations = numIteration ;
             this.stepSize      = stepSize;
+            this.isBuiltModel = false;
+            type=MODEL_TYPE.BATCH_PROCESS;
 
             conf = new SparkConf().setMaster("local[*]").setAppName("Linear Regression Example").set("spark.driver.allowMultipleContexts", "true") ;
             sc = new JavaSparkContext(conf);
             eventsMem = new ArrayList<String>();
-            k=0;
 
     }
 
-
     public Double regress(Double[] eventData){
-
 
            String str="";
            for (int i=0;i<paramCount;i++){
@@ -63,22 +62,77 @@ public class StreamingLinearRegression {
                if(i!=paramCount-1)str+=",";
            }
            eventsMem.add(str);
-           k++;
 
-        if(k==batchSize){
-            k=0;
-            System.out.println("Start Training");
-            eventsRDD=getRDD(sc,eventsMem);
-            model = trainData(eventsRDD);
-            eventsMem.clear();
+        double mse=0.0;
 
+        switch(type){
+            case BATCH_PROCESS:
+                return regressAsBatches();
+
+            case TIME_BASED:
+                return regressAsTimeBased();
+
+            case MOVING_WINDOW:
+                return regressAsMovingWindow();
+
+            default:
+                return 0.0;
         }
+    }
 
-        List <Double> data=Arrays.asList(eventData);
-        String eventStr = data.toString();
-        System.out.println("Event String :"+eventStr);
-         return 0.0;
+    public double regressAsBatches(){
+        int memSize=eventsMem.size();
+        if(memSize >= batchSize){
 
+            System.out.println("Start Training");
+            double mse= buildModel(eventsMem);
+            eventsMem.clear();
+            return mse;
+
+        }else{
+            return 0.0;
+        }
+    }
+
+//Time Based Learning Model
+    public double regressAsTimeBased(){
+        return 0;
+    }
+
+    public double regressAsMovingWindow(){
+        int memSize=eventsMem.size();
+        double mse=0;
+        if(memSize >= batchSize){
+            int eventCounter=0;
+            List<String>movingEventsMem=null;
+            Iterator<String> memIter = movingEventsMem.iterator();
+
+            while(memIter.hasNext() && eventCounter<=batchSize){
+                movingEventsMem.add(memIter.next());
+                eventCounter++;
+            }
+            mse=buildModel(movingEventsMem);
+            eventsMem.remove(0);
+        }else{
+            mse=0;
+        }
+        return mse;
+    }
+
+    public double buildModel(List<String> eventsMem){
+
+        eventsRDD=getRDD(sc,eventsMem);
+        //Learning Methods
+        if(!isBuiltModel) {
+            isBuiltModel = true;
+            model = trainData(eventsRDD, numIterations, stepSize);
+        }
+        else {
+            model = trainStreamData(eventsRDD, numIterations, stepSize,model);
+        }
+        double mse= getMSE(eventsRDD,model);
+        StreamingLinearRegressionModel streamModel = new StreamingLinearRegressionModel(model,mse);
+        return mse;
     }
 
     public static JavaRDD<LabeledPoint> getRDD (JavaSparkContext sc ,List<String> events){
@@ -97,25 +151,15 @@ public class StreamingLinearRegression {
                 }
         );
         parsedData.cache();
-
         return parsedData;
     }
 
+    public static double getMSE(JavaRDD<LabeledPoint> parsedData,final LinearRegressionModel builtModel){
 
-    public static LinearRegressionModel trainData (JavaRDD<LabeledPoint> parsedData) {
-
-        // Building the model
-        int numIterations = 100;
-        double stepSize = 0.00000001;
-        final LinearRegressionModel model =  LinearRegressionWithSGD.train(JavaRDD.toRDD(parsedData), numIterations, stepSize);
-
-        // LinearRegressionWithSGD.train(JavaRDD.toRDD(parsedData), numIterations, stepSize,1,prevModel.weights())
-
-        // Evaluate model on training examples and compute training error
         JavaRDD<Tuple2<Double, Double>> valuesAndPreds = parsedData.map(
                 new Function<LabeledPoint, Tuple2<Double, Double>>() {
                     public Tuple2<Double, Double> call(LabeledPoint point) {
-                        double prediction = model.predict(point.features());
+                        double prediction = builtModel.predict(point.features());
                         return new Tuple2<Double, Double>(prediction, point.label());
                     }
                 }
@@ -128,11 +172,23 @@ public class StreamingLinearRegression {
                 }
         ).rdd()).mean();
         System.out.println("training Mean Squared Error = " + MSE);
+        return MSE;
+    }
 
+    //Standalone Learning Algorithms
+    public static LinearRegressionModel trainData (JavaRDD<LabeledPoint> parsedData, int numIterations, double stepSize) {
+        // Building the model
+        final LinearRegressionModel model =  LinearRegressionWithSGD.train(JavaRDD.toRDD(parsedData), numIterations, stepSize);
         return model;
     }
 
 
+    //Incremental Learning Models
+    public static LinearRegressionModel trainStreamData (JavaRDD<LabeledPoint> parsedData,int numIterations, double stepSize,LinearRegressionModel prevModel ) {
+        // Building the model
+        final LinearRegressionModel model = LinearRegressionWithSGD.train(JavaRDD.toRDD(parsedData), numIterations, stepSize,1,prevModel.weights());
+        return model;
+    }
 
 
 }

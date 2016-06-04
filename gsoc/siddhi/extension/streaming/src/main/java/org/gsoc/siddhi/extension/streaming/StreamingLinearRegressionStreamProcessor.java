@@ -11,9 +11,6 @@ import org.wso2.siddhi.core.executor.ConstantExpressionExecutor;
 import org.wso2.siddhi.core.executor.ExpressionExecutor;
 import org.wso2.siddhi.core.query.processor.Processor;
 import org.wso2.siddhi.core.query.processor.stream.StreamProcessor;
-import org.wso2.siddhi.extension.timeseries.linreg.MultipleLinearRegressionCalculator;
-import org.wso2.siddhi.extension.timeseries.linreg.RegressionCalculator;
-import org.wso2.siddhi.extension.timeseries.linreg.SimpleLinearRegressionCalculator;
 import org.wso2.siddhi.query.api.definition.AbstractDefinition;
 import org.wso2.siddhi.query.api.definition.Attribute;
 
@@ -29,12 +26,12 @@ import java.util.List;
 
 public class StreamingLinearRegressionStreamProcessor extends StreamProcessor {
 
+    private int learnType;
     private int paramCount = 0;                                         // Number of x variables +1
     private int calcInterval = 1;                                       // The frequency of regression calculation
     private int batchSize = 10;                                 // Maximum # of events, used for regression calculation
     private double ci = 0.95;                                           // Confidence Interval
-    private final int SIMPLE_LINREG_INPUT_PARAM_COUNT = 2;              // Number of Input parameters in a simple linear regression
-    private RegressionCalculator regressionCalculator = null;
+
     private int paramPosition = 0;
 
     private int numIterations = 100;
@@ -47,16 +44,18 @@ public class StreamingLinearRegressionStreamProcessor extends StreamProcessor {
     @Override
     protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         paramCount = attributeExpressionLength;
+        int PARAM_WIDTH=3;
         // Capture constant inputs
         if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor) {
-            paramCount = paramCount - 3;
 
+            paramCount = paramCount - PARAM_WIDTH;
             featureSize=paramCount;//
 
-            paramPosition = 3;
+            paramPosition = PARAM_WIDTH;
             try {
-                calcInterval = ((Integer) attributeExpressionExecutors[0].execute(null));
+                learnType = ((Integer) attributeExpressionExecutors[0].execute(null));
                 batchSize = ((Integer) attributeExpressionExecutors[1].execute(null));
+
             } catch (ClassCastException c) {
                 throw new ExecutionPlanCreationException("Calculation interval, batch size and range should be of type int");
             }
@@ -66,18 +65,10 @@ public class StreamingLinearRegressionStreamProcessor extends StreamProcessor {
                 throw new ExecutionPlanCreationException("Confidence interval should be of type double and a value between 0 and 1");
             }
         }
-             System.out.println("Parameters: "+calcInterval+" "+batchSize+" "+" "+ci+"\n");
+             System.out.println("Parameters: "+" "+batchSize+" "+" "+ci+"\n");
         // Pick the appropriate regression calculator
 
-        streamingLinearRegression = new StreamingLinearRegression(paramCount, calcInterval, batchSize, ci, numIterations, stepSize);//
-
-        if (paramCount > SIMPLE_LINREG_INPUT_PARAM_COUNT) {
-            regressionCalculator = new MultipleLinearRegressionCalculator(paramCount, calcInterval, batchSize, ci);
-
-        } else {
-            regressionCalculator = new SimpleLinearRegressionCalculator(paramCount, calcInterval, batchSize, ci);
-        }
-
+        streamingLinearRegression = new StreamingLinearRegression(0,paramCount, batchSize, ci, numIterations, stepSize);
 
         // Add attributes for standard error and all beta values
         String betaVal;
@@ -106,9 +97,12 @@ public class StreamingLinearRegressionStreamProcessor extends StreamProcessor {
                     inputData[i - paramPosition] = attributeExpressionExecutors[i].execute(complexEvent);
                     eventData[i - paramPosition] = (Double) attributeExpressionExecutors[i].execute(complexEvent);
                 }
-                Object[] outputData = regressionCalculator.calculateLinearRegression(inputData);
+
+                //Object[] outputData = regressionCalculator.calculateLinearRegression(inputData);
+                Object[] outputData = null;
 
                // Object[] outputData= streamingLinearRegression.addToRDD(eventData);
+                //Calling the regress function
                 Double mse = streamingLinearRegression.regress(eventData);
 
                 System.out.println("OutputData: "+outputData);
