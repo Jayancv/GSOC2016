@@ -10,42 +10,72 @@ import org.apache.spark.mllib.regression.LabeledPoint;
 import org.apache.spark.mllib.regression.LinearRegressionModel;
 import org.apache.spark.mllib.regression.LinearRegressionWithSGD;
 import org.apache.spark.SparkConf;
-import java.util.Scanner;
 
+import java.util.ArrayList;
+import java.util.Scanner;
+import java.util.List;
 public class StreamingLinearRegression {
     public static void main(String []args){
+        int option= Integer.parseInt(args[0]);
+        if(option==0) {
+            System.out.println("LinearRegression\n");
+            SparkConf conf = new SparkConf().setAppName("Linear Regression Example");
+            JavaSparkContext sc = new JavaSparkContext(conf);
+            LinearRegressionModel prevModel = null;
 
-        System.out.println("LinearRegressionTest\n");
-        SparkConf conf = new SparkConf().setAppName("Linear Regression Example");
-        JavaSparkContext sc = new JavaSparkContext(conf);
-        LinearRegressionModel prevModel=null;
+            Scanner scn = new Scanner(System.in);
+            String path = scn.next();
+            JavaRDD<String> data = sc.textFile(path);
+            JavaRDD<LabeledPoint> parsedData = getRDD(data);
+            LinearRegressionModel model = trainData(parsedData);
 
-         Scanner scn= new Scanner(System.in);
-        String path = scn.next();
-        JavaRDD<LabeledPoint> parsedData;
-        parsedData = getRDD(sc,path);
-        LinearRegressionModel model= trainData(parsedData);
-
-        System.out.println(model.weights());
-        System.out.println("\n");
-        //Incremental Modelling
-        while(scn.hasNext()) {
-            path = scn.next();
-            parsedData = getRDD(sc,path);
-            prevModel=model;
-            model = trainStreamData(parsedData,prevModel);
             System.out.println(model.weights());
             System.out.println("\n");
+            //Incremental Modelling
+            while (scn.hasNext()) {
+                path = scn.next();
+                data = sc.textFile(path);
+                parsedData = getRDD(data);
+                prevModel = model;
+                model = trainStreamData(parsedData, prevModel);
+                System.out.println(model.weights());
+                System.out.println("\n");
+            }
+
+        }else {
+           // System.out.println("LinearRegression\n");
+            SparkConf conf = new SparkConf().setAppName("Linear Regression Example");
+            JavaSparkContext sc = new JavaSparkContext(conf);
+            LinearRegressionModel prevModel = null;
+            testPerformance(sc);
         }
-
-
     }
 
-    public static JavaRDD<LabeledPoint> getRDD (JavaSparkContext sc, String path){
-        System.out.println("Train-Stream-Data\n");
-        JavaRDD<String> data = sc.textFile(path);
-        sc.
-        Object [] myData = streamingLinearRegression.regress(eventData);
+    public static void testPerformance(JavaSparkContext sc){
+
+        JavaRDD<String>data=sc.parallelize( getTestList(1000000,3));
+        JavaRDD<LabeledPoint>parsedData= getRDD(data);
+        JavaRDD<LabeledPoint>d = sc.parallelize(parsedData.take(10));
+        LinearRegressionModel model = trainData(d);
+
+        for(int i=10000;i<=1000000;i *= 10){
+
+           d = sc.parallelize(parsedData.take(i));
+            model = trainStreamData(d, model);
+        }
+    }
+
+    public static  List<String> getTestList(int n, int p){
+        List <String> eventStrs = new ArrayList<String>();
+        for(int i=0;i<n;i++){
+            String eventStr= i+","+Math.random()+" "+Math.random()+" "+Math.random();
+            eventStrs.add(eventStr);
+        }
+        return eventStrs;
+    }
+
+    public static JavaRDD<LabeledPoint> getRDD (JavaRDD<String> data){
+       // System.out.println("Train-Stream-Data\n");
 
         JavaRDD<LabeledPoint> parsedData = data.map(
                 new Function<String, LabeledPoint>() {
@@ -64,12 +94,21 @@ public class StreamingLinearRegression {
         return parsedData;
     }
 
+
     public static LinearRegressionModel trainStreamData (JavaRDD<LabeledPoint> parsedData,LinearRegressionModel prevModel) {
         // Building the model
         int numIterations = 100;
         double stepSize = 0.00000001;
+
+        long startTime = System.nanoTime();
+
         final LinearRegressionModel model =
         LinearRegressionWithSGD.train(JavaRDD.toRDD(parsedData), numIterations, stepSize,1,prevModel.weights());
+
+        long stopTime = System.nanoTime();
+
+        //System.out.println("Execution Time: "+ (stopTime- startTime));
+       // System.out.println("Length: "+ parsedData.count());
         // LinearRegressionWithSGD.train(JavaRDD.toRDD(parsedData), numIterations, stepSize);
         // Evaluate model on training examples and compute training error
         JavaRDD<Tuple2<Double, Double>> valuesAndPreds = parsedData.map(
@@ -87,8 +126,8 @@ public class StreamingLinearRegression {
                     }
                 }
         ).rdd()).mean();
-        System.out.println("training Mean Squared Error = " + MSE);
-
+       // System.out.println("training Mean Squared Error = " + MSE);
+        System.out.println(parsedData.count()+","+(stopTime- startTime)+","+MSE);
         return model;
     }
 
@@ -98,8 +137,13 @@ public class StreamingLinearRegression {
         // Building the model
         int numIterations = 100;
         double stepSize = 0.00000001;
+
+        long startTime = System.nanoTime();
         final LinearRegressionModel model =  LinearRegressionWithSGD.train(JavaRDD.toRDD(parsedData), numIterations, stepSize);
 
+        long stopTime = System.nanoTime();
+       // System.out.println("Execution Time: "+ (stopTime- startTime));
+       // System.out.println("Length: "+ parsedData.count());
                 // LinearRegressionWithSGD.train(JavaRDD.toRDD(parsedData), numIterations, stepSize,1,prevModel.weights())
 
         // Evaluate model on training examples and compute training error
@@ -118,7 +162,7 @@ public class StreamingLinearRegression {
                     }
                 }
         ).rdd()).mean();
-        System.out.println("training Mean Squared Error = " + MSE);
+       // System.out.println("training Mean Squared Error = " + MSE);
 
         return model;
     }
