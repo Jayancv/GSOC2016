@@ -1,2 +1,2 @@
-Big Data: Predictive Analysis with Online Data
-Streaming Platform for high speed online data analysis with incrementally learning machine learnign models
+#Big Data: Predictive Analysis with Online Data
+Streaming Platform for high speed online data analysis with incrementally learning machine learnign models. This High end data analysis based on the machine learnign algorithms,not only in standalone mode but also as incremental machine learnign modles. This Big data analysis also can also be performed in a highly distributed platforms. And this is also support wso2 cep siddhi processor's event streams as well.
