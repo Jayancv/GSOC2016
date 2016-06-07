@@ -32,6 +32,7 @@ public class StreamingLinearRegressionStreamProcessor extends StreamProcessor {
     private int batchSize = 10;                                 // Maximum # of events, used for regression calculation
     private double ci = 0.95;                                           // Confidence Interval
 
+    private double miniBatchFraction=1;
     private int paramPosition = 0;
 
     private int numIterations = 100;
@@ -68,7 +69,7 @@ public class StreamingLinearRegressionStreamProcessor extends StreamProcessor {
              System.out.println("Parameters: "+" "+batchSize+" "+" "+ci+"\n");
         // Pick the appropriate regression calculator
 
-        streamingLinearRegression = new StreamingLinearRegression(0,paramCount, batchSize, ci, numIterations, stepSize);
+        streamingLinearRegression = new StreamingLinearRegression(0,paramCount, batchSize, ci, numIterations, stepSize, miniBatchFraction);
 
         // Add attributes for standard error and all beta values
         String betaVal;
@@ -106,8 +107,6 @@ public class StreamingLinearRegressionStreamProcessor extends StreamProcessor {
                 Double mse = streamingLinearRegression.regress(eventData);
 
                 System.out.println("OutputData: "+outputData);
-
-
 
                 // Skip processing if user has specified calculation interval
                 if (outputData == null) {

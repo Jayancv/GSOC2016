@@ -29,7 +29,7 @@ public class StreamingKMeansClusteringStreamProcessor extends StreamProcessor {
     private int k;
     private int numClusters;
     private int numIterations;
-    private int run;
+    private double alpha=0;
     private int paramPosition = 0;
     private int featureSize=1;  //P
     private StreamingKMeansClustering streamingKMeansClustering = null;
@@ -37,7 +37,7 @@ public class StreamingKMeansClusteringStreamProcessor extends StreamProcessor {
     @Override
     protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         paramCount = attributeExpressionLength;
-        int PARAM_WIDTH=5;
+        int PARAM_WIDTH=6;
         // Capture constant inputs
         if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor) {
 
@@ -48,13 +48,14 @@ public class StreamingKMeansClusteringStreamProcessor extends StreamProcessor {
             try {
                 learnType = ((Integer) attributeExpressionExecutors[0].execute(null));
                 batchSize = ((Integer) attributeExpressionExecutors[1].execute(null));
-                numClusters = ((Integer) attributeExpressionExecutors[3].execute(null));
-                numIterations = ((Integer) attributeExpressionExecutors[4].execute(null));
+                numClusters = ((Integer) attributeExpressionExecutors[2].execute(null));
+                numIterations = ((Integer) attributeExpressionExecutors[3].execute(null));
+                alpha         = ((Integer) attributeExpressionExecutors[4].execute(null));
             } catch (ClassCastException c) {
                 throw new ExecutionPlanCreationException("Calculation interval, batch size and range should be of type int");
             }
             try {
-                ci = ((Double) attributeExpressionExecutors[2].execute(null));
+                ci = ((Double) attributeExpressionExecutors[5].execute(null));
             } catch (ClassCastException c) {
                 throw new ExecutionPlanCreationException("Confidence interval should be of type double and a value between 0 and 1");
             }
@@ -62,7 +63,7 @@ public class StreamingKMeansClusteringStreamProcessor extends StreamProcessor {
         System.out.println("Parameters: "+" "+batchSize+" "+" "+ci+"\n");
         // Pick the appropriate regression calculator
 
-        streamingKMeansClustering = new StreamingKMeansClustering(0,paramCount, batchSize, ci,numClusters, numIterations);
+        streamingKMeansClustering = new StreamingKMeansClustering(0,paramCount, batchSize, ci,numClusters, numIterations,alpha);
 
         // Add attributes for standard error and all beta values
         String betaVal;

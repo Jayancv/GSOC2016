@@ -24,6 +24,7 @@ public class StreamingLinearRegression {
     private double ci = 0.95;                                           // Confidence Interval
     private int numIterations = 100;
     private double stepSize = 0.00000001;
+    private double miniBatchFraction =1;
     private List<String> eventsMem=null;
 
     private  LinearRegressionModel model;
@@ -35,7 +36,7 @@ public class StreamingLinearRegression {
     private MODEL_TYPE type;
     public enum MODEL_TYPE {BATCH_PROCESS, MOVING_WINDOW,TIME_BASED }
 
-    public StreamingLinearRegression(int learnType,int paramCount, int batchSize, double ci, int numIteration, double stepSize){
+    public StreamingLinearRegression(int learnType,int paramCount, int batchSize, double ci, int numIteration, double stepSize, double miniBatchFraction){
 
         System.out.println("StreamingLinearRegression");
             //this.type = learnType;
@@ -45,6 +46,7 @@ public class StreamingLinearRegression {
             this.ci = ci;
             this.numIterations = numIteration ;
             this.stepSize      = stepSize;
+            this.miniBatchFraction = miniBatchFraction;
             this.isBuiltModel = false;
             type=MODEL_TYPE.BATCH_PROCESS;
 
@@ -125,10 +127,10 @@ public class StreamingLinearRegression {
         //Learning Methods
         if(!isBuiltModel) {
             isBuiltModel = true;
-            model = trainData(eventsRDD, numIterations, stepSize);
+            model = trainData(eventsRDD, numIterations, stepSize,miniBatchFraction);
         }
         else {
-            model = trainStreamData(eventsRDD, numIterations, stepSize,model);
+            model = trainStreamData(eventsRDD, numIterations, stepSize, miniBatchFraction,model);
         }
         double mse= getMSE(eventsRDD,model);
         StreamingLinearRegressionModel streamModel = new StreamingLinearRegressionModel(model,mse);
@@ -176,17 +178,17 @@ public class StreamingLinearRegression {
     }
 
     //Standalone Learning Algorithms
-    public static LinearRegressionModel trainData (JavaRDD<LabeledPoint> parsedData, int numIterations, double stepSize) {
+    public static LinearRegressionModel trainData (JavaRDD<LabeledPoint> parsedData, int numIterations, double stepSize, double miniBatchFraction) {
         // Building the model
-        final LinearRegressionModel model =  LinearRegressionWithSGD.train(JavaRDD.toRDD(parsedData), numIterations, stepSize);
+        final LinearRegressionModel model =  LinearRegressionWithSGD.train(JavaRDD.toRDD(parsedData), numIterations, stepSize, miniBatchFraction);
         return model;
     }
 
 
     //Incremental Learning Models
-    public static LinearRegressionModel trainStreamData (JavaRDD<LabeledPoint> parsedData,int numIterations, double stepSize,LinearRegressionModel prevModel ) {
+    public static LinearRegressionModel trainStreamData (JavaRDD<LabeledPoint> parsedData,int numIterations,  double stepSize, double miniBatchFraction,LinearRegressionModel prevModel ) {
         // Building the model
-        final LinearRegressionModel model = LinearRegressionWithSGD.train(JavaRDD.toRDD(parsedData), numIterations, stepSize,1,prevModel.weights());
+        final LinearRegressionModel model = LinearRegressionWithSGD.train(JavaRDD.toRDD(parsedData), numIterations, stepSize,miniBatchFraction,prevModel.weights());
         return model;
     }
 
