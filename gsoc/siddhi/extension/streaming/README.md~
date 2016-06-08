@@ -4,7 +4,7 @@
 
 ###Template Query
 
-from LinRegInputStream#streaming:streaminglr(<learnType>, <batchSize/timeFrame>, <numIterations>, <stepSize>, <miniBatchFraction>, <ci>, salary, rbi, walks, strikeouts, errors)
+from LinRegInputStream#streaming:streaminglr((learnType), (batchSize/timeFrame), (numIterations), (stepSize), (miniBatchFraction), (ci), salary, rbi, walks, strikeouts, errors)
 select *
 insert into regResults;
 
@@ -46,16 +46,16 @@ insert into regResults;
 ##Streaming KMeans Clustering
 ###Template Query
 
-from LinRegInputStream#streaming:streamingkm(<learnType>, <batchSize/timeFrame>, <numClusters>, <numIterations>,<alpha>, <ci>, salary, rbi, walks, strikeouts, errors)
+from LinRegInputStream#streaming:streamingkm((learnType), atchSize/timeFrame], [numClusters], <numIterations>,<alpha>, <ci>, salary, rbi, walks, strikeouts, errors)
 select *
 insert into regResults;
 
 
 ####Learn Type <learnType>
 Select the required Learnign Method
-0-Batch processing
-1-Moving Window Processing
-2-Time based Processing
+0-Batch processing\n
+1-Moving Window Processing\n
+2-Time based Processing\n
 
 ####Batch Size <batchSize>
 select the batch size required to periodically retrain the models
