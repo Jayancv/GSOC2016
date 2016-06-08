@@ -46,7 +46,7 @@ insert into regResults;
 ##Streaming KMeans Clustering
 ###Template Query
 
-from LinRegInputStream#streaming:streamingkm(<learnType>, <batchSize/timeFrame>, <numClusters>, <numIterations>,<alpha>, <ci>, salary, rbi, walks, strikeouts, errors)
+from LinRegInputStream#streaming:streamingkm([learnType], [batchSize/timeFrame], [numClusters], <numIterations>,<alpha>, <ci>, salary, rbi, walks, strikeouts, errors)
 select *
 insert into regResults;
 
