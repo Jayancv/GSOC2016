@@ -135,12 +135,13 @@ public class StreamingLinearRegression {
         }
 
         double mse= getMSE(eventsRDD,model);
-        Object[]output= new Object[paramCount];
+        Object[]output= new Object[paramCount+1];
         output[0]=mse;
+        output[1]=model.intercept();
         Vector v= model.weights();
         double [] beta=v.toArray();
         for(int i=0;i<paramCount-1;i++){
-            output[i+1]=beta[i];
+            output[i+2]=beta[i];
         }
 
         StreamingLinearRegressionModel streamModel = new StreamingLinearRegressionModel(model,mse);
