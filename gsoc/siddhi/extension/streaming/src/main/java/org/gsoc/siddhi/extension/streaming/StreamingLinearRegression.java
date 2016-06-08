@@ -56,7 +56,7 @@ public class StreamingLinearRegression {
 
     }
 
-    public Double regress(Double[] eventData){
+    public Object[] regress(Double[] eventData){
 
            String str="";
            for (int i=0;i<paramCount;i++){
@@ -78,32 +78,33 @@ public class StreamingLinearRegression {
                 return regressAsMovingWindow();
 
             default:
-                return 0.0;
+                return null;
         }
     }
 
-    public double regressAsBatches(){
+    public Object[] regressAsBatches(){
         int memSize=eventsMem.size();
-        if(memSize >= batchSize){
+        System.out.println("Event Memory Size: "+memSize);
 
+        if(memSize >= batchSize){
             System.out.println("Start Training");
-            double mse= buildModel(eventsMem);
+            Object[]output= buildModel(eventsMem);
             eventsMem.clear();
-            return mse;
+            return output;
 
         }else{
-            return 0.0;
+            return null;
         }
     }
 
 //Time Based Learning Model
-    public double regressAsTimeBased(){
-        return 0;
+    public Object[] regressAsTimeBased(){
+        return null;
     }
 
-    public double regressAsMovingWindow(){
+    public Object[] regressAsMovingWindow(){
         int memSize=eventsMem.size();
-        double mse=0;
+        Object[]output=null;
         if(memSize >= batchSize){
             int eventCounter=0;
             List<String>movingEventsMem=null;
@@ -113,16 +114,16 @@ public class StreamingLinearRegression {
                 movingEventsMem.add(memIter.next());
                 eventCounter++;
             }
-            mse=buildModel(movingEventsMem);
+            output=buildModel(movingEventsMem);
             eventsMem.remove(0);
         }else{
-            mse=0;
+            output=null;
         }
-        return mse;
+        return output;
     }
 
-    public double buildModel(List<String> eventsMem){
-
+    public Object[] buildModel(List<String> eventsMem){
+        System.out.println("Building Streaming Models");
         eventsRDD=getRDD(sc,eventsMem);
         //Learning Methods
         if(!isBuiltModel) {
@@ -132,13 +133,22 @@ public class StreamingLinearRegression {
         else {
             model = trainStreamData(eventsRDD, numIterations, stepSize, miniBatchFraction,model);
         }
+
         double mse= getMSE(eventsRDD,model);
+        Object[]output= new Object[paramCount];
+        output[0]=mse;
+        Vector v= model.weights();
+        double [] beta=v.toArray();
+        for(int i=0;i<paramCount-1;i++){
+            output[i+1]=beta[i];
+        }
+
         StreamingLinearRegressionModel streamModel = new StreamingLinearRegressionModel(model,mse);
-        return mse;
+        return output;
     }
 
     public static JavaRDD<LabeledPoint> getRDD (JavaSparkContext sc ,List<String> events){
-        System.out.println("Train-Stream-Data\n");
+        System.out.println("Event List to JavaRDD Conversion\n");
         JavaRDD<String> data = sc.parallelize(events);
         JavaRDD<LabeledPoint> parsedData = data.map(
                 new Function<String, LabeledPoint>() {
@@ -173,7 +183,7 @@ public class StreamingLinearRegression {
                     }
                 }
         ).rdd()).mean();
-        System.out.println("training Mean Squared Error = " + MSE);
+        System.out.println("Mean Squared Error = " + MSE);
         return MSE;
     }
 

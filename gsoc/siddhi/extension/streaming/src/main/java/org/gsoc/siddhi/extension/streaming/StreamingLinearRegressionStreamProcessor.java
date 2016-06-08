@@ -31,7 +31,6 @@ public class StreamingLinearRegressionStreamProcessor extends StreamProcessor {
     private int calcInterval = 1;                                       // The frequency of regression calculation
     private int batchSize = 10;                                 // Maximum # of events, used for regression calculation
     private double ci = 0.95;                                           // Confidence Interval
-
     private double miniBatchFraction=1;
     private int paramPosition = 0;
 
@@ -45,7 +44,7 @@ public class StreamingLinearRegressionStreamProcessor extends StreamProcessor {
     @Override
     protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         paramCount = attributeExpressionLength;
-        int PARAM_WIDTH=3;
+        int PARAM_WIDTH=6;
         // Capture constant inputs
         if (attributeExpressionExecutors[0] instanceof ConstantExpressionExecutor) {
 
@@ -56,12 +55,27 @@ public class StreamingLinearRegressionStreamProcessor extends StreamProcessor {
             try {
                 learnType = ((Integer) attributeExpressionExecutors[0].execute(null));
                 batchSize = ((Integer) attributeExpressionExecutors[1].execute(null));
+                numIterations = ((Integer) attributeExpressionExecutors[2].execute(null));
+
+
 
             } catch (ClassCastException c) {
                 throw new ExecutionPlanCreationException("Calculation interval, batch size and range should be of type int");
             }
+
+            try{
+
+                stepSize = ((Double) attributeExpressionExecutors[3].execute(null));
+                miniBatchFraction = ((Double) attributeExpressionExecutors[4].execute(null));
+
+            }catch(ClassCastException c){
+                throw new ExecutionPlanCreationException("Step Size, Mini Batch Fraction should be in double format");
+            }
+
             try {
-                ci = ((Double) attributeExpressionExecutors[2].execute(null));
+
+
+                ci = ((Double) attributeExpressionExecutors[5].execute(null));
             } catch (ClassCastException c) {
                 throw new ExecutionPlanCreationException("Confidence interval should be of type double and a value between 0 and 1");
             }
@@ -100,13 +114,12 @@ public class StreamingLinearRegressionStreamProcessor extends StreamProcessor {
                 }
 
                 //Object[] outputData = regressionCalculator.calculateLinearRegression(inputData);
-                Object[] outputData = null;
 
                // Object[] outputData= streamingLinearRegression.addToRDD(eventData);
                 //Calling the regress function
-                Double mse = streamingLinearRegression.regress(eventData);
+                Object[] outputData = streamingLinearRegression.regress(eventData);
 
-                System.out.println("OutputData: "+outputData);
+
 
                 // Skip processing if user has specified calculation interval
                 if (outputData == null) {

@@ -58,7 +58,7 @@ public class StreamingKMeansClustering {
 
     }
 
-    public Double cluster(Double[] eventData){
+    public Object[] cluster(Double[] eventData){
 
         String str="";
         for (int i=0;i<paramCount;i++){
@@ -68,20 +68,25 @@ public class StreamingKMeansClustering {
         eventsMem.add(str);
 
         double WSSSE=0.0;
-
+        Object[]output=new Object[1];
         switch(type){
             case BATCH_PROCESS:
-                return clusterAsBatches();
+                output[0]=clusterAsBatches();
+                return output;
 
             case TIME_BASED:
-                return clusterAsTimeBased();
+                output[0]= clusterAsTimeBased();
+                return output;
 
             case MOVING_WINDOW:
-                return clusterAsMovingWindow();
+                output[0]= clusterAsMovingWindow();
+                return output;
 
             default:
-                return 0.0;
+                return null;
         }
+
+
     }
 
     public double clusterAsBatches(){
