@@ -118,7 +118,7 @@
       <file leaf-file-name="StreamingKMeansClusteringStreamProcessor.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/org/gsoc/siddhi/extension/streaming/StreamingKMeansClusteringStreamProcessor.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="149">
+            <state relative-caret-position="1067">
               <caret line="103" column="17" selection-start-line="103" selection-start-column="17" selection-end-line="103" selection-end-column="17" />
               <folding>
                 <element signature="imports" expanded="true" />
@@ -1241,7 +1241,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/org/gsoc/siddhi/extension/streaming/StreamingKMeansClusteringStreamProcessor.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="149">
+        <state relative-caret-position="1067">
           <caret line="103" column="17" selection-start-line="103" selection-start-column="17" selection-end-line="103" selection-end-column="17" />
           <folding>
             <element signature="imports" expanded="true" />
