@@ -99,10 +99,6 @@ public class StreamingKMeansClusteringStreamProcessor extends StreamProcessor {
                 // Object[] outputData= streamingLinearRegression.addToRDD(eventData);
                 //Calling the regress function
                 outputData = streamingKMeansClustering.cluster(eventData);
-                if((Double)outputData[0]==0.0){
-                    outputData=null;
-                }
-                System.out.println("OutputData: "+outputData);
 
                 // Skip processing if user has specified calculation interval
                 if (outputData == null) {

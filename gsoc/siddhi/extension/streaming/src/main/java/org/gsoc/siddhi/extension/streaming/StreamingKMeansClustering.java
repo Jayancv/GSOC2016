@@ -67,80 +67,85 @@ public class StreamingKMeansClustering {
         }
         eventsMem.add(str);
 
-        double WSSSE=0.0;
-        Object[]output=new Object[1];
+
+        Object[]output=null;
         switch(type){
             case BATCH_PROCESS:
-                output[0]=clusterAsBatches();
+                output=clusterAsBatches();
                 return output;
 
             case TIME_BASED:
-                output[0]= clusterAsTimeBased();
+                output= clusterAsTimeBased();
                 return output;
 
             case MOVING_WINDOW:
-                output[0]= clusterAsMovingWindow();
+                output= clusterAsMovingWindow();
                 return output;
 
             default:
                 return null;
         }
-
-
     }
 
-    public double clusterAsBatches(){
+    public Object[] clusterAsBatches(){
       //double mse=0;
         int memSize=eventsMem.size();
         if(memSize >= batchSize){
 
             System.out.println("Start Training");
-            double wssse= buildModel(eventsMem);
+            Object[]output= buildModel(eventsMem);
             eventsMem.clear();
-            return wssse;
+            return output;
 
         }else {
             mt=0;
-            return 0.0;
+            return null;
         }
     }
 
     //Time Based Learning Model
-    public double clusterAsTimeBased(){
+    public Object[] clusterAsTimeBased(){
         double wssse=0;
-        return wssse;
+        return null;
     }
 
-    public double clusterAsMovingWindow(){
+    public Object[] clusterAsMovingWindow(){
         double wssse=0;
-        return wssse;
+        return null;
     }
 
-    public double buildModel(List<String> eventsMem){
+    public Object[] buildModel(List<String> eventsMem){
        System.out.println("Build Model");
         eventsRDD = getRDD(sc,eventsMem);
         KMeansModel newModel = null;
+        Vector clusterWeights = null;
         //Learning Methods
         if(!isBuiltModel) {
             isBuiltModel = true;
             newModel = trainData(eventsRDD,numClusters, numIterations);
             clusterCenters = newModel.clusterCenters();
-            Vector clusterWeights= getClutserWeights(eventsRDD,newModel,numClusters);
+            clusterWeights = getClutserWeights(eventsRDD,newModel,numClusters);
             streamingKMeansClusteringModel = new StreamingKMeansClusteringModel(newModel,clusterCenters,clusterWeights);
 
         }
         else {
             newModel = trainData(eventsRDD, numClusters, numIterations);
             clusterCenters = newModel.clusterCenters();
-            Vector clusterWeights = getClutserWeights(eventsRDD, newModel,numClusters);
+            clusterWeights = getClutserWeights(eventsRDD, newModel,numClusters);
             StreamingKMeansClusteringModel newStreamingModel= new StreamingKMeansClusteringModel(newModel,clusterCenters,clusterWeights);
             streamingKMeansClusteringModel = retrainModel(streamingKMeansClusteringModel, newStreamingModel,numClusters,paramCount);
         }
 
         model=newModel;
         double wssse= getWSSSE(eventsRDD,newModel);
-        //StreamingLinearRegressionModel streamModel = new StreamingLinearRegressionModel(model,mse);
-        return wssse;
+        Object[]output= new Object[paramCount+1];
+        output[0]=wssse;
+        output[1]=1.0;
+        for(int i=0;i<paramCount-1;i++){
+            output[i+2]=1.0;
+        }
+
+        return output;
     }
 
     public static JavaRDD<Vector> getRDD (JavaSparkContext sc ,List<String> events){

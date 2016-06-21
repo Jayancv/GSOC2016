@@ -57,8 +57,6 @@ public class StreamingLinearRegressionStreamProcessor extends StreamProcessor {
                 batchSize = ((Integer) attributeExpressionExecutors[1].execute(null));
                 numIterations = ((Integer) attributeExpressionExecutors[2].execute(null));
 
-
-
             } catch (ClassCastException c) {
                 throw new ExecutionPlanCreationException("Calculation interval, batch size and range should be of type int");
             }
@@ -80,7 +78,7 @@ public class StreamingLinearRegressionStreamProcessor extends StreamProcessor {
                 throw new ExecutionPlanCreationException("Confidence interval should be of type double and a value between 0 and 1");
             }
         }
-             System.out.println("Parameters: "+" "+batchSize+" "+" "+ci+"\n");
+        System.out.println("Parameters: "+" "+batchSize+" "+" "+ci+"\n");
         // Pick the appropriate regression calculator
 
         streamingLinearRegression = new StreamingLinearRegression(0,paramCount, batchSize, ci, numIterations, stepSize, miniBatchFraction);
@@ -115,11 +113,9 @@ public class StreamingLinearRegressionStreamProcessor extends StreamProcessor {
 
                 //Object[] outputData = regressionCalculator.calculateLinearRegression(inputData);
 
-               // Object[] outputData= streamingLinearRegression.addToRDD(eventData);
+                // Object[] outputData= streamingLinearRegression.addToRDD(eventData);
                 //Calling the regress function
                 Object[] outputData = streamingLinearRegression.regress(eventData);
-
-
 
                 // Skip processing if user has specified calculation interval
                 if (outputData == null) {

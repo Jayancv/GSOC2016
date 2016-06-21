@@ -1,8 +1,8 @@
 org/gsoc/siddhi/extension/streaming/StreamingLinearRegression.class
-org/gsoc/siddhi/extension/streaming/StreamingLinearRegressionHandler.class
+org/gsoc/siddhi/extension/streaming/StreamingLogisticRegressionModel.class
 org/gsoc/siddhi/extension/streaming/StreamingKMeansClustering.class
 org/gsoc/siddhi/extension/streaming/StreamingKMeansClustering$MODEL_TYPE.class
-org/gsoc/siddhi/extension/streaming/StreamingSparkAlgorithms.class
+org/gsoc/siddhi/extension/streaming/StreamingLogisticRegression.class
 org/gsoc/siddhi/extension/streaming/StreamingKMeansClustering$1.class
 org/gsoc/siddhi/extension/streaming/StreamingLinearRegression$2.class
 org/gsoc/siddhi/extension/streaming/StreamingLinearRegressionModel.class
@@ -15,3 +15,4 @@ org/gsoc/siddhi/extension/streaming/StreamingLinearRegression$1.class
 org/gsoc/siddhi/extension/streaming/StreamingLinearRegression$4.class
 org/gsoc/siddhi/extension/streaming/StreamingKMeansClusteringStreamProcessor.class
 org/gsoc/siddhi/extension/streaming/StreamingLinearRegression$MODEL_TYPE.class
+org/gsoc/siddhi/extension/streaming/StreamingLogisticRegressionStreamProcessor.class
