@@ -12,7 +12,6 @@ org/gsoc/siddhi/extension/streaming/MyLinearRegressionStreamProcessor.class
 org/gsoc/siddhi/extension/streaming/StreamingLinearRegressionStreamProcessor.class
 org/gsoc/siddhi/extension/streaming/StreamingKMeansClustering$2.class
 org/gsoc/siddhi/extension/streaming/StreamingLinearRegression$1.class
-org/gsoc/siddhi/extension/streaming/StreamingLinearRegression$4.class
 org/gsoc/siddhi/extension/streaming/StreamingKMeansClusteringStreamProcessor.class
 org/gsoc/siddhi/extension/streaming/StreamingLinearRegression$MODEL_TYPE.class
 org/gsoc/siddhi/extension/streaming/StreamingLogisticRegressionStreamProcessor.class

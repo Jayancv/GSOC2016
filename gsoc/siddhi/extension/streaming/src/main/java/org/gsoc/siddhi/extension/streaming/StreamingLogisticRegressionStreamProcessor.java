@@ -77,7 +77,7 @@ public class StreamingLogisticRegressionStreamProcessor extends StreamProcessor 
         System.out.println("Parameters: "+" "+batchSize+" "+" "+ci+"\n");
         // Pick the appropriate regression calculator
 
-        streamingLinearRegression = new StreamingLinearRegression(0,paramCount, batchSize, ci, numIterations, stepSize, miniBatchFraction);
+        //streamingLinearRegression = new StreamingLogisticRegression(0,paramCount, batchSize, ci, numIterations, stepSize, miniBatchFraction);
 
         // Add attributes for standard error and all beta values
         String betaVal;
