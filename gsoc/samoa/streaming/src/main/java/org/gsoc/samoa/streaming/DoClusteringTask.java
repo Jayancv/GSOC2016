@@ -1,21 +1,19 @@
 package org.gsoc.samoa.streaming;
 
-import org.apache.samoa.tasks.Task;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.github.javacliparser.ClassOption;
 import com.github.javacliparser.FlagOption;
 import com.github.javacliparser.IntOption;
 import com.github.javacliparser.Option;
-
+import org.apache.samoa.tasks.Task;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.samoa.topology.impl.SimpleComponentFactory;
 import org.apache.samoa.topology.impl.SimpleEngine;
 
 /**
  * Created by mahesh on 7/17/16.
  */
-public class DoTask {
+public class DoClusteringTask {
 
 
     // TODO: clean up this class for helping ML Developer in SAMOA
@@ -35,8 +33,7 @@ public class DoTask {
      *          the arguments
      */
     public static void main(String[] args) {
-         logger.info("In Main");
-        //args = new String[]({"org.gsoc.samoa.streaming.ClusteringEvaluation"};
+        logger.info("In Main");
         // ArrayList<String> tmpArgs = new ArrayList<String>(Arrays.asList(args));
 
         // args = tmpArgs.toArray(new String[0]);
@@ -58,6 +55,7 @@ public class DoTask {
         logger.debug("Command line string = {}", cliString.toString());
         System.out.println("Command line string = " + cliString.toString());
 
+
         Task task;
         try {
             task = ClassOption.cliStringToObject(cliString.toString(), Task.class, extraOptions);
@@ -67,9 +65,11 @@ public class DoTask {
             System.out.println("Fail to initialize the task" + e);
             return;
         }
+
         task.setFactory(new SimpleComponentFactory());
         task.init();
         SimpleEngine.submitTopology(task.getTopology());
     }
+
 
 }

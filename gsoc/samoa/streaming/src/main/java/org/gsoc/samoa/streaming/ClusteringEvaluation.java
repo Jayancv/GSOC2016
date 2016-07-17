@@ -34,6 +34,7 @@ import org.apache.samoa.topology.ComponentFactory;
 import org.apache.samoa.topology.Stream;
 import org.apache.samoa.topology.Topology;
 import org.apache.samoa.topology.TopologyBuilder;
+import org.apache.samoa.tasks.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
