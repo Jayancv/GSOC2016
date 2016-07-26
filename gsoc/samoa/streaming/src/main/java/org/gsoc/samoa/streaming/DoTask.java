@@ -36,7 +36,7 @@ public class DoTask {
      */
     public static void main(String[] args) {
          logger.info("In Main");
-        //args = new String[]({"org.gsoc.samoa.streaming.ClusteringEvaluation"};
+        //args = new String[]({"org.gsoc.samoa.streaming.clustering.ClusteringEvaluation"};
         // ArrayList<String> tmpArgs = new ArrayList<String>(Arrays.asList(args));
 
         // args = tmpArgs.toArray(new String[0]);
