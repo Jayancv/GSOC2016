@@ -1,5 +1,6 @@
 package org.gsoc.samoa.streaming.clustering;
 
+import org.apache.commons.lang3.concurrent.ConcurrentException;
 import org.apache.samoa.core.ContentEvent;
 import org.apache.samoa.core.Processor;
 import org.apache.samoa.evaluation.ClusteringEvaluationContentEvent;
@@ -9,9 +10,14 @@ import org.apache.samoa.learners.clusterers.ClusteringContentEvent;
 
 import org.apache.samoa.moa.cluster.Cluster;
 import org.apache.samoa.moa.cluster.Clustering;
+import org.apache.samoa.moa.clusterers.KMeans;
+import org.apache.samoa.moa.clusterers.clustream.WithKmeans;
 import org.gsoc.samoa.streaming.gsocexample.GsocDestinationProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.LinkedList;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Created by mahesh on 7/19/16.
@@ -22,6 +28,12 @@ public class MyClusteringEvaluation implements Processor{
     private static final Logger logger = LoggerFactory.getLogger(MyClusteringEvaluation.class);
 
     String evalPoint;
+    //public LinkedList<Clustering>samoaClusters;
+    //public ConcurrentLinkedQueue<double[]> cepEvents;
+    public ConcurrentLinkedQueue<Clustering>samoaClusters;
+    public int numClusters=0;
+
+    Clustering gtClustering;
     MyClusteringEvaluation(String evalPoint){
         this.evalPoint = evalPoint;
     }
@@ -44,12 +56,17 @@ public class MyClusteringEvaluation implements Processor{
         else if(event instanceof ClusteringResultContentEvent){
             logger.info(event.getKey()+""+evalPoint+"ClusteringResultContentEvent\n");
             ClusteringResultContentEvent resultEvent = (ClusteringResultContentEvent)event;
+
+           // Clustering clustering = KMeans.gaussianMeans(gtClustering, resultEvent.getClustering());
             Clustering clustering=resultEvent.getClustering();
 
+            Clustering kmeansClustering = WithKmeans.kMeans_rand(numClusters,clustering);
+            //Adding samoa Clusters into my class
+            samoaClusters.add(kmeansClustering);
 
             int numClusters = clustering.size();
             logger.info("Nunber of Clustering: "+numClusters);
-            for(int i=0;i<numClusters;i++){
+          /*  for(int i=0;i<numClusters;i++){
                 Cluster cluster = clustering.get(i);
 
                 logger.info("++++++Cluster"+i+"+++++");
@@ -59,7 +76,7 @@ public class MyClusteringEvaluation implements Processor{
                 }
                 logger.info("Cluster End\n");
             }
-            logger.info("Clustering End\n\n\n");
+            logger.info("Clustering End\n\n\n");*/
 
         }
 
@@ -69,6 +86,8 @@ public class MyClusteringEvaluation implements Processor{
         else{
             logger.info(event.getKey()+""+evalPoint+"ContentEvent\n");
         }
+
+
 
         return true;
     }
@@ -82,6 +101,14 @@ public class MyClusteringEvaluation implements Processor{
     public Processor newProcessor(Processor p) {
         MyClusteringEvaluation newEval = (MyClusteringEvaluation)p;
         return newEval;
+    }
+
+    public void setSamoaClusters(ConcurrentLinkedQueue<Clustering> samoaClusters){
+        this.samoaClusters = samoaClusters;
+    }
+
+    public void setNumClusters(int numClusters){
+        this.numClusters = numClusters;
     }
 
 }

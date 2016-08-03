@@ -65,7 +65,7 @@ public class ClusteringEvaluation implements Task, Configurable {
             RandomRBFGeneratorEvents.class.getName());
 
     public IntOption instanceLimitOption = new IntOption("instanceLimit", 'i',
-            "Maximum number of instances to test/train on  (-1 = no limit).", 100, -1,
+            "Maximum number of instances to test/train on  (-1 = no limit).", 100000, -1,
             Integer.MAX_VALUE);
 
     public IntOption measureCollectionTypeOption = new IntOption("measureCollectionType", 'm',
@@ -76,7 +76,7 @@ public class ClusteringEvaluation implements Task, Configurable {
             Integer.MAX_VALUE);
 
     public IntOption sampleFrequencyOption = new IntOption("sampleFrequency", 'f',
-            "How many instances between samples of the learning performance.", 100, 0,
+            "How many instances between samples of the learning performance.", 1000, 0,
             Integer.MAX_VALUE);
 
     public StringOption evaluationNameOption = new StringOption("evaluationName", 'n', "Identifier of the evaluation",
@@ -150,9 +150,9 @@ public class ClusteringEvaluation implements Task, Configurable {
         distributor.setEvaluationStream(evaluationStream); // passes evaluation events along
         logger.debug("Successfully instantiated Distributor");
 
-        MyClusteringEvaluation checkPointEntrance= new MyClusteringEvaluation("Entrance Check Point ");
-        builder.addProcessor(checkPointEntrance, DISTRIBUTOR_PARALLELISM);
-        builder.connectInputAllStream(distributorStream, checkPointEntrance);
+        //MyClusteringEvaluation checkPointEntrance= new MyClusteringEvaluation("Entrance Check Point ");
+        //builder.addProcessor(checkPointEntrance, DISTRIBUTOR_PARALLELISM);
+       // builder.connectInputAllStream(distributorStream, checkPointEntrance);
         // instantiate learner and connect it to distributorStream
         learner = this.learnerOption.getValue();
         learner.init(builder, source.getDataset(), 1);
@@ -164,9 +164,9 @@ public class ClusteringEvaluation implements Task, Configurable {
                 .decayHorizon(((ClusteringStream) streamTrain).getDecayHorizon()).build();
 
 
-        MyClusteringEvaluation destProcessor = new MyClusteringEvaluation("Distribution Check Point ");
-        builder.addProcessor(destProcessor, DISTRIBUTOR_PARALLELISM);
-        builder.connectInputAllStream(evaluationStream, destProcessor);
+        //MyClusteringEvaluation destProcessor = new MyClusteringEvaluation("Distribution Check Point ");
+        //builder.addProcessor(destProcessor, DISTRIBUTOR_PARALLELISM);
+        //builder.connectInputAllStream(evaluationStream, destProcessor);
 
         builder.addProcessor(evaluator);
         for (Stream evaluatorPiInputStream : learner.getResultStreams()) {
@@ -183,10 +183,6 @@ public class ClusteringEvaluation implements Task, Configurable {
             //builder.connectInputShuffleStream(evaluatorPiInputStream, destProcessor);
 
         }
-
-
-
-
         logger.debug("Successfully instantiated EvaluatocrProessor");
 
         topology = builder.build();

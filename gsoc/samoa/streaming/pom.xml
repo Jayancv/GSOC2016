@@ -16,6 +16,23 @@
     </dependency>
 
     <dependency>
+      <groupId>org.wso2.siddhi</groupId>
+      <artifactId>siddhi-core</artifactId>
+      <version> 3.0.6-SNAPSHOT </version>
+    </dependency>
+    <dependency>
+      <groupId>org.wso2.siddhi</groupId>
+      <artifactId>siddhi-query-api</artifactId>
+      <version> 3.0.6-SNAPSHOT </version>
+    </dependency>
+
+    <!--dependency>
+      <groupId>org.wso2.siddhi</groupId>
+      <artifactId>siddhi-extension-timeseries</artifactId>
+      <version> 3.0.6-SNAPSHOT </version>
+    </dependency-->
+
+    <dependency>
       <groupId>org.apache.samoa</groupId>
       <artifactId>samoa-api</artifactId>
       <version>0.4.0-incubating</version>

@@ -29,7 +29,7 @@ public class MyClusteringEntranceProcessor implements EntranceProcessor {
 
     private static final long serialVersionUID = 4169053337917578558L;
 
-    private static final Logger logger = LoggerFactory.getLogger(ClusteringEntranceProcessor.class);
+    private static final Logger logger = LoggerFactory.getLogger(MyClusteringEntranceProcessor.class);
 
     private StreamSource streamSource;
     private Instance firstInstance;
@@ -55,8 +55,8 @@ public class MyClusteringEntranceProcessor implements EntranceProcessor {
 
     @Override
     public Processor newProcessor(Processor p) {
-        ClusteringEntranceProcessor newProcessor = new ClusteringEntranceProcessor();
-        ClusteringEntranceProcessor originProcessor = (ClusteringEntranceProcessor) p;
+        MyClusteringEntranceProcessor newProcessor = new MyClusteringEntranceProcessor();
+        MyClusteringEntranceProcessor originProcessor = (MyClusteringEntranceProcessor) p;
         if (originProcessor.getStreamSource() != null) {
             newProcessor.setStreamSource(originProcessor.getStreamSource().getStream());
         }
@@ -183,7 +183,7 @@ public class MyClusteringEntranceProcessor implements EntranceProcessor {
     @Override
     public ContentEvent nextEvent() {
 
-        //groundTruthSamplingFrequency = ((ClusteringStream) streamSource.getStream()).getDecayHorizon(); // FIXME should it be takend from the ClusteringEvaluation -f option instead?
+        groundTruthSamplingFrequency = ((ClusteringStream) streamSource.getStream()).getDecayHorizon(); // FIXME should it be takend from the ClusteringEvaluation -f option instead?
         if (isFinished()) {
             // send ending event
             ClusteringContentEvent contentEvent = new ClusteringContentEvent(-1, firstInstance);
@@ -195,6 +195,7 @@ public class MyClusteringEntranceProcessor implements EntranceProcessor {
 
                 ClusteringContentEvent contentEvent = new ClusteringContentEvent(numInstanceSent, nextDataPoint);
 
+                //logger.info("Number Of Instanced Sent"+numInstanceSent);
                 return contentEvent;
 
         }

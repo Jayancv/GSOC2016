@@ -10,21 +10,27 @@ import org.apache.samoa.moa.options.AbstractOptionHandler;
 import org.apache.samoa.moa.tasks.TaskMonitor;
 import org.apache.samoa.streams.InstanceStream;
 import org.apache.samoa.streams.clustering.ClusteringStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Created by mahesh on 7/17/16.
  */
 public class MyClusteringStream  extends ClusteringStream {
-
+    private static final Logger logger = LoggerFactory.getLogger(MyClusteringStream.class);
     protected InstancesHeader streamHeader;
     private int numGeneratedInstances;
     private int nextEventCounter;
     LinkedList<DataPoint> points = new LinkedList<DataPoint>();
 
-    LinkedList<double[]>cepEvents;
+    //LinkedList<double[]>cepEvents;
+    public ConcurrentLinkedQueue<double[]> cepEvents;
+    //public ConcurrentLinkedQueue<Clustering>samoaClusters;
+
     double [] values; //Cep Event
     private int numAttributes;
 
@@ -37,6 +43,7 @@ public class MyClusteringStream  extends ClusteringStream {
         this.numAttributes =this.numAttsOption.getValue();
         generateHeader();
         restart();
+        //logger.info("Succefully Prepare MyClusteringStream for Implementation");
         values = new double[numAttributes];
 
         for(int i=0;i<numAttributes;i++){
@@ -63,14 +70,31 @@ public class MyClusteringStream  extends ClusteringStream {
     @Override
     public Example<Instance> nextInstance() {
 
-        numGeneratedInstances++;
-        double[] values_new = new double[numAttsOption.getValue()]; // +1
-        //double[] values = null;
-        int clusterChoice = -1;
-        System.arraycopy(values, 0, values_new, 0, values.length);
-        Instance inst = new DenseInstance(1.0, values_new);
-        inst.setDataset(getHeader());
-        return new InstanceExample(inst);
+        if(numGeneratedInstances == 0){
+            numGeneratedInstances++;
+            double[] values = this.values;
+            double[] values_new = new double[numAttsOption.getValue()]; // +1
+            int clusterChoice = -1;
+            System.arraycopy(values, 0, values_new, 0, values.length);
+            Instance inst = new DenseInstance(1.0, values_new);
+            inst.setDataset(getHeader());
+
+            return new InstanceExample(inst);
+
+        }else {
+            numGeneratedInstances++;
+            double[] values_new = new double[numAttsOption.getValue()]; // +1
+            //logger.info("I am here");
+            while (cepEvents.isEmpty()) ;
+          //logger.info("Cep Events Not Empty");
+
+            double[] values = cepEvents.poll();
+            int clusterChoice = -1;
+            System.arraycopy(values, 0, values_new, 0, values.length);
+            Instance inst = new DenseInstance(1.0, values_new);
+            inst.setDataset(getHeader());
+            return new InstanceExample(inst);
+        }
     }
 
     @Override
@@ -108,5 +132,10 @@ public class MyClusteringStream  extends ClusteringStream {
         attributes.add(new Attribute("class", classLabels));
         streamHeader = new InstancesHeader(new Instances(getCLICreationString(InstanceStream.class), attributes, 0));
         streamHeader.setClassIndex(streamHeader.numAttributes() - 1);
+    }
+
+
+    public void setCepEvents(ConcurrentLinkedQueue<double[]>cepEvents){
+        this.cepEvents = cepEvents;
     }
 }

@@ -17,7 +17,7 @@ import java.util.Iterator;
  * Created by mahesh on 6/4/16.
  */
 public class StreamingKMeansClustering {
-    private int learnType;
+    private int learnType=0;
     private int paramCount = 0;                                         // Number of x variables +1
     private int batchSize = 10;                                 // Maximum # of events, used for regression calculation
     private double ci = 0.95;                                           // Confidence Interval
@@ -41,6 +41,10 @@ public class StreamingKMeansClustering {
     private boolean isBuiltModel;
     private MODEL_TYPE type;
     public enum MODEL_TYPE {BATCH_PROCESS, MOVING_WINDOW,TIME_BASED }
+
+    public final int BATCH_PROCESS =0;
+    public final int MOVING_WINDOW = 1;
+    public final int TIME_BASED =2;
 
     public StreamingKMeansClustering(int learnType,int paramCount, int batchSize, double ci, int numClusters,int numIteration, double alpha){
         this.learnType = learnType;
@@ -69,7 +73,7 @@ public class StreamingKMeansClustering {
 
 
         Object[]output=null;
-        switch(type){
+        switch(learnType){
             case BATCH_PROCESS:
                 output=clusterAsBatches();
                 return output;
@@ -138,12 +142,23 @@ public class StreamingKMeansClustering {
 
         model=newModel;
         double wssse= getWSSSE(eventsRDD,newModel);
-        Object[]output= new Object[paramCount+1];
+        Object[]output= new Object[numClusters+1];
         output[0]=wssse;
-        output[1]=1.0;
-        for(int i=0;i<paramCount-1;i++){
+       // output[1]=1.0;
+        /*for(int i=0;i<paramCount-1;i++){
             output[i+2]=1.0;
+        }*/
+        //output Cluster Centers
+        for(int i=0;i<numClusters;i++){
+              String centerStr="";
+            double[] center = clusterCenters[i].toArray();
+            centerStr += center[0]+"";
+            for(int j=1;j<paramCount;j++){
+                  centerStr += (","+center[j]);
+            }
+            output[i+1] = centerStr;
         }
+
 
         return output;
     }

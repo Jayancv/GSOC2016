@@ -1,11 +1,16 @@
 package org.gsoc.samoa.streaming.clustering;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.samoa.evaluation.ClusteringEvaluatorProcessor;
 import org.apache.samoa.learners.Learner;
 import org.apache.samoa.learners.clusterers.simple.ClusteringDistributorProcessor;
 import org.apache.samoa.learners.clusterers.simple.DistributedClusterer;
+import org.apache.samoa.moa.cluster.Clustering;
 import org.apache.samoa.streams.ClusteringEntranceProcessor;
 import org.apache.samoa.streams.InstanceStream;
 import org.apache.samoa.streams.clustering.ClusteringStream;
@@ -15,6 +20,7 @@ import org.apache.samoa.topology.Stream;
 import org.apache.samoa.topology.Topology;
 import org.apache.samoa.topology.TopologyBuilder;
 import org.apache.samoa.tasks.Task;
+import org.gsoc.samoa.streaming.streams.MyClusteringStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,14 +41,15 @@ public class MyClustering implements Task, Configurable {
 
     private static final int DISTRIBUTOR_PARALLELISM = 1;
 
-    private static final Logger logger = LoggerFactory.getLogger(ClusteringEvaluation.class);
+    private static final Logger logger = LoggerFactory.getLogger(MyClustering.class);
+
 
     public ClassOption learnerOption = new ClassOption("learner", 'l', "Clustering to run.", Learner.class,
             DistributedClusterer.class.getName());
 
 
     public ClassOption streamTrainOption = new ClassOption("streamTrain", 's', "Input stream.", InstanceStream.class,
-            RandomRBFGeneratorEvents.class.getName());
+            MyClusteringStream.class.getName());
 
     public IntOption instanceLimitOption = new IntOption("instanceLimit", 'i',
             "Maximum number of instances to test/train on  (-1 = no limit).", 100000, -1,
@@ -86,6 +93,11 @@ public class MyClustering implements Task, Configurable {
     private Topology topology;
     private TopologyBuilder builder;
 
+    //public LinkedList<double[]> cepEvents;
+    //public LinkedList<Clustering> samoaClusters;
+    public ConcurrentLinkedQueue<double[]> cepEvents;
+    public ConcurrentLinkedQueue<Clustering>samoaClusters;
+    public int numClusters=0;
     public void getDescription(StringBuilder sb) {
         sb.append("Clustering evaluation");
     }
@@ -109,6 +121,13 @@ public class MyClustering implements Task, Configurable {
         // (sourceStream)
         source = new MyClusteringEntranceProcessor();
         streamTrain = this.streamTrainOption.getValue();
+
+        if(streamTrain instanceof MyClusteringStream ){
+            MyClusteringStream myStream = (MyClusteringStream)streamTrain;
+            myStream.setCepEvents(this.cepEvents);
+        }
+
+
         source.setStreamSource(streamTrain);
         builder.addEntranceProcessor(source);
         source.setSamplingThreshold(samplingThresholdOption.getValue());
@@ -142,6 +161,8 @@ public class MyClustering implements Task, Configurable {
 
 
         MyClusteringEvaluation resultCheckPoint = new MyClusteringEvaluation("Result Check Point ");
+        resultCheckPoint.setSamoaClusters(this.samoaClusters);
+        resultCheckPoint.setNumClusters(this.numClusters);
         builder.addProcessor(resultCheckPoint);
 
         for (Stream evaluatorPiInputStream : learner.getResultStreams()) {
@@ -169,5 +190,16 @@ public class MyClustering implements Task, Configurable {
 
     public Topology getTopology() {
         return topology;
+    }
+
+    public void setCepEvents(ConcurrentLinkedQueue<double[]> cepEvents){
+        this.cepEvents = cepEvents;
+    }
+
+    public void setSamoaClusters(ConcurrentLinkedQueue<Clustering> samoaClusters){
+        this.samoaClusters = samoaClusters;
+    }
+    public void setNumClusters(int numClusters){
+        this.numClusters = numClusters;
     }
 }
