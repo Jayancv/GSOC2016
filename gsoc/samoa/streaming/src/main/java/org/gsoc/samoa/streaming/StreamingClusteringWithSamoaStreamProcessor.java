@@ -1,6 +1,7 @@
 package org.gsoc.samoa.streaming;
 
 import org.gsoc.samoa.streaming.clustering.StreamingClusteringWithSamoa;
+import org.gsoc.samoa.streaming.samoa.StreamingClustering;
 import org.wso2.siddhi.core.config.ExecutionPlanContext;
 import org.wso2.siddhi.core.event.ComplexEvent;
 import org.wso2.siddhi.core.event.ComplexEventChunk;
@@ -37,8 +38,8 @@ public class StreamingClusteringWithSamoaStreamProcessor extends StreamProcessor
     private int alpha = 0;
     private double stepSize = 0.00000001;
     private int featureSize=1;  //P
-    private StreamingClusteringWithSamoa streamingClusteringWithSamoa = null;
-
+    //private StreamingClusteringWithSamoa streamingClusteringWithSamoa = null;
+    private StreamingClustering streamingClusteringWithSamoa = null;
     @Override
     protected List<Attribute> init(AbstractDefinition inputDefinition, ExpressionExecutor[] attributeExpressionExecutors, ExecutionPlanContext executionPlanContext) {
         paramCount = attributeExpressionLength;
@@ -78,7 +79,8 @@ public class StreamingClusteringWithSamoaStreamProcessor extends StreamProcessor
         System.out.println("Parameters: "+" "+batchSize+" "+" "+ci+"\n");
         // Pick the appropriate regression calculator
 
-        streamingClusteringWithSamoa = new StreamingClusteringWithSamoa(learnType,paramCount, batchSize, ci,numClusters, numIterations,alpha);
+        //streamingClusteringWithSamoa = new StreamingClusteringWithSamoa(learnType,paramCount, batchSize, ci,numClusters, numIterations,alpha);
+        streamingClusteringWithSamoa = new StreamingClustering(learnType,paramCount, batchSize, ci,numClusters, numIterations,alpha);
         try {
             Thread.sleep(1000);
         }catch(Exception e){
@@ -111,7 +113,7 @@ public class StreamingClusteringWithSamoaStreamProcessor extends StreamProcessor
                 for (int i = paramPosition; i < attributeExpressionLength; i++) {
                     inputData[i - paramPosition] = attributeExpressionExecutors[i].execute(complexEvent);
                     value=eventData[i - paramPosition] = (Double) attributeExpressionExecutors[i].execute(complexEvent);
-                    eventData[i - paramPosition] = (double)value;
+                    cepEvent[i - paramPosition] = (double)value;
                 }
 
                 //Object[] outputData = regressionCalculator.calculateLinearRegression(inputData);

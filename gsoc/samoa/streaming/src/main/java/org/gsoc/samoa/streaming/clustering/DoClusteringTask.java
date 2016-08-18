@@ -36,20 +36,20 @@ public class DoClusteringTask {
    public ConcurrentLinkedQueue<double[]>cepEvents;
     public ConcurrentLinkedQueue<Clustering>samoaClusters ;
     public int numClusters=0;
-
-    /**
+    public int maxNumEvents=10000;
+     /**
      * The main method.
      *
      * @param args
      *          the arguments
      */
 
-    public DoClusteringTask(int numClusters,ConcurrentLinkedQueue<double[]> cepEvents, ConcurrentLinkedQueue<Clustering>samoaClusters){
+    public DoClusteringTask(int numClusters,ConcurrentLinkedQueue<double[]> cepEvents, ConcurrentLinkedQueue<Clustering>samoaClusters, int maxNumEvents){
         logger.info("DoClusteringTask");
         this.numClusters = numClusters;
         this.cepEvents = cepEvents;
         this.samoaClusters = samoaClusters;
-
+        this.maxNumEvents = maxNumEvents;
     }
     public static void main(String[] args) {
         logger.info("In Main");
@@ -68,7 +68,7 @@ public class DoClusteringTask {
 
         StringBuilder cliString = new StringBuilder();
         for (String arg : args) {
-            logger.info(arg);
+            logger.info("arg"+arg);
             cliString.append(" ").append(arg);
         }
         logger.debug("Command line string = {}", cliString.toString());
@@ -91,9 +91,11 @@ public class DoClusteringTask {
     }
 
 
-     public void initTask(int numAttributes, int numClusters, int batchSize){
+     public void initTask(int numAttributes, int numClusters, int batchSize,int maxNumEvents){
          String query="";
-         query ="org.gsoc.samoa.streaming.clustering.MyClustering -i 100000 -s  (org.gsoc.samoa.streaming.streams.MyClusteringStream -K "+numClusters+" -a "+numAttributes+") -l (org.apache.samoa.learners.clusterers.simple.DistributedClusterer -l (org.apache.samoa.learners.clusterers.ClustreamClustererAdapter -l (org.apache.samoa.moa.clusterers.clustream.WithKmeans  -m 3 -k 3)))";
+         query ="org.gsoc.samoa.streaming.clustering.MyClustering -f "+batchSize+" -i "+maxNumEvents+" -s  (org.gsoc.samoa.streaming.streams.MyClusteringStream -K "+numClusters+" -a "+numAttributes+") -l (org.apache.samoa.learners.clusterers.simple.DistributedClusterer -l (org.apache.samoa.learners.clusterers.ClustreamClustererAdapter -l (org.apache.samoa.moa.clusterers.clustream.WithKmeans  -m 3 -k 3)))";
+
+         query ="org.gsoc.samoa.streaming.clustering.MyClustering -f "+batchSize+" -i "+maxNumEvents+" -s  (org.gsoc.samoa.streaming.streams.MyClusteringStream -K "+numClusters+" -a "+numAttributes+") -l (org.apache.samoa.learners.clusterers.simple.DistributedClusterer -l (org.apache.samoa.learners.clusterers.ClustreamClustererAdapter -l (org.apache.samoa.moa.clusterers.clustream.WithKmeans  -m 100 -k "+numClusters+")))";
          logger.info("QUERY: "+query);
          String args[]={query};
          this.initClusteringTask(args);

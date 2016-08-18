@@ -201,7 +201,7 @@ public class StreamingKMeansClustering {
     }
 
    public static Vector getClutserWeights(JavaRDD<Vector> eventsRDD, KMeansModel model, int numClusters ){
-       System.out.println("CLuster Weights");
+       System.out.println("Cluster Weights");
        JavaRDD<Integer> weights = model.predict(eventsRDD);
        List<Integer> list = weights.collect();
        double [] w = new double[numClusters];
@@ -209,7 +209,7 @@ public class StreamingKMeansClustering {
 
        while(iter.hasNext()){
            int i= iter.next();
-           System.out.println(i);
+           //System.out.println(i);
            w[i]++;
 
        }

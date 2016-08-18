@@ -83,6 +83,7 @@ public class StreamingLinearRegression {
                str+= eventData[i];
                if(i!=paramCount-1)str+=",";
            }
+        System.out.println("Event "+counterSamples+": "+str);
            eventsMem.add(str);
         counterSamples++;
 

@@ -37,8 +37,9 @@ public class StreamingClusteringWithSamoa extends Thread{
 
     public ConcurrentLinkedQueue<double[]>cepEvents;
     public ConcurrentLinkedQueue<Clustering>samoaClusters;
-    public int maxNumEvents=0;
+    public int maxNumEvents=10000;
     public int numEventsReceived=0;
+
 
     public DoClusteringTask clusteringTask;
     private static final Logger logger = LoggerFactory.getLogger(StreamingClusteringWithSamoa.class);
@@ -63,9 +64,10 @@ public class StreamingClusteringWithSamoa extends Thread{
 
        cepEvents = new ConcurrentLinkedQueue<double[]>();
         samoaClusters = new  ConcurrentLinkedQueue<Clustering>();
+        this.maxNumEvents = 100000;
         try {
 
-            this.clusteringTask = new DoClusteringTask(this.numClusters,this.cepEvents, this.samoaClusters);
+            this.clusteringTask = new DoClusteringTask(this.numClusters,this.cepEvents, this.samoaClusters,this.maxNumEvents);
         }catch(Exception e){
             System.out.println(e.toString());
         }
@@ -74,7 +76,7 @@ public class StreamingClusteringWithSamoa extends Thread{
     }
 
     public void run(){
-        this.clusteringTask.initTask(paramCount,numClusters,batchSize);
+        this.clusteringTask.initTask(paramCount,numClusters,batchSize,maxNumEvents);
     }
 
     public Object[] cluster(double[] eventData) {

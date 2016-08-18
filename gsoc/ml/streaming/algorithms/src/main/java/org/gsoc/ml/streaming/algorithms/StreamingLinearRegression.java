@@ -15,7 +15,7 @@ public class StreamingLinearRegression {
     public static void main(String []args){
 
         System.out.println("LinearRegressionTest\n");
-        SparkConf conf = new SparkConf().setAppName("Linear Regression Example");
+        SparkConf conf = new SparkConf().setMaster("local[*]").setAppName("Linear Regression Example").set("spark.driver.allowMultipleContexts", "true") ;
         JavaSparkContext sc = new JavaSparkContext(conf);
         LinearRegressionModel prevModel=null;
 
